@@ -5,11 +5,11 @@ from dash.dependencies import Input, Output, State
 
 
 ########### Define your variables ######
-myheading1='Predicting Home Sale Prices in Ames, Iowa'
+myheading1='Predicting Price of an Avocado'
 image1='ames_welcome.jpeg'
 equation='eq.mathml'
-tabtitle = 'Ames Housing'
-sourceurl = 'http://jse.amstat.org/v19n3/decock.pdf'
+tabtitle = 'Avocados'
+sourceurl = 'https://www.kaggle.com/datasets/neuromusic/avocado-prices'
 githublink = 'https://github.com/amakarewycz/501-linear-reg-ames-housing'
 
 
@@ -19,39 +19,36 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 app.title=tabtitle
 
+#<img src="https://partycity6.scene7.com/is/image/PartyCity/_pdp_sq_?$_500x500_$&amp;$product=PartyCity/P890643" alt="Avocado Sombrero Costume for Dogs Image #1" class="loaded" data-was-processed="true">
 
 
 ########### Set up the layout
 app.layout = html.Div(children=[
     html.H1(myheading1),
     html.Div([
-        html.Img(src=app.get_asset_url(image1), style={'width': '30%', 'height': 'auto'}, className='four columns'),
+        html.Img(src="https://partycity6.scene7.com/is/image/PartyCity/_pdp_sq_?$_500x500_$&$product=PartyCity/P890643", style={'width': '30%', 'height': 'auto'}, className='four columns'),
         html.Div([
-                html.H3('Features of Home:'),
-                html.Div('Year Built:'),
-                dcc.Input(id='YearBuilt', value=2010, type='number', min=2006, max=2010, step=1),
-                html.Div('Bathrooms:'),
-                dcc.Input(id='Bathrooms', value=2, type='number', min=1, max=5, step=1),
-                html.Div('Bedrooms:'),
-                dcc.Input(id='BedroomAbvGr', value=4, type='number', min=1, max=5, step=1),
-                html.Div('Total Square Feet:'),
-                dcc.Input(id='TotalSF', value=2000, type='number', min=100, max=5000, step=1),
-                html.Div('Single Family Home:'),
-                dcc.Input(id='SingleFam', value=0, type='number', min=0, max=1, step=1),
-                html.Div('Garage Area:'),
-                dcc.Input(id='GarageArea', value=0, type='number', min=0, max=1481, step=1),
+                html.H3('Features of Avocado Purchase:'),
+                html.Div('Year:'),
+                dcc.Input(id='Year', value=2018, type='number', min=2015, max=2018, step=1),
+                html.Div('Month:'),
+                dcc.Input(id='Month', value=2, type='number', min=1, max=12, step=1),
+                html.Div('Type:'),
+                dcc.Dropdown( ['Organic','Conventional'], 'Organic',id='Type'),
+                html.Div('Region:'),
+                dcc.Dropdown( ['San Francisco','Albany','Spokane'], 'San Francisco',id='Region'),
 
             ], className='four columns'),
             html.Div([
                 html.Button(children='Submit', id='submit-val', n_clicks=0,
                                 style={
-                                'background-color': 'red',
+                                'background-color': 'green',
                                 'color': 'white',
                                 'margin-left': '5px',
                                 'verticalAlign': 'center',
                                 'horizontalAlign': 'center'}
                                 ),
-                html.H3('Predicted Home Value:'),
+                html.H3('Predicted Avocado Price:'),
                 html.Div(id='Results')
             ], className='four columns')
         ], className='twelve columns',
@@ -60,16 +57,9 @@ app.layout = html.Div(children=[
     html.Br(),
     html.Br(),
     html.H4('Regression Equation:'),
-    html.Div('Predicted Price = (- $1,154.9K * Baseline) + ($0.6K * Year Built) + ($13.1K * Bathrooms) + (- $7.0K * Bedrooms) + ($0.044K * Total Square Feet) + ($ 22.6K * Single Family Home) + ( $0.049 * Garage Area)'),
-#    html.Div([
-#    html.Meta(name="viewport",content="width=device-width"),
-#    html.Script(src="https://polyfill.io/v3/polyfill.min.js?features=es6"),
-#    html.Script(src="ps://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js",id="MathJax-script"), #async=True)
-#    html.P('''When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are 
- # \[x = {-b \pm \sqrt{b^2-4ac} \over 2a}.\]''')
- #   ]),
+    html.Div('Predicted Price = -138.26 + 0.0693*Year + 0.0257*Month + 0.28*TypeOrganic + -0.28*TypeConventional+ 0.147*RegionSanFrancisco+ 0.0002*RegionAlbany + -0.1472*RegionSpokane'),
     html.Br(),
-    html.A('Google Spreadsheet', href='https://docs.google.com/spreadsheets/d/1WlUKALlFqEHA-A9kbyhXzxuHol1AZT-shTQ7uuzob1M/edit#gid=0'),
+    html.A('Google Spreadsheet', href='https://docs.google.com/spreadsheets/d/1mudmrJsmSq5UE93rLkgvOYfRxC19s9hYlCjFavoVbeU/edit#gid=0'),
     html.Br(),
     html.A('Code on Github', href=githublink),
     html.Br(),
@@ -79,72 +69,81 @@ app.layout = html.Div(children=[
 
 
 ######### Define Callback
-def ames_lr_function_old(clicks, YearBuilt,Bathrooms,BedroomAbvGr,TotalSF,SingleFam,GarageArea):
-    if clicks==0:
-        return "waiting for inputs"
-    else:
-        y = [-1154949.7078 + 593.8959*YearBuilt + 13064.0661*Bathrooms + -7004.9201*BedroomAbvGr + 44.3431*TotalSF+ 22586.4944*SingleFam+ 49.1537*GarageArea]
-        formatted_y = "${:,.2f}".format(y[0])
-        return formatted_y
     
 @app.callback(
     Output(component_id='Results', component_property='children'),
     Input(component_id='submit-val', component_property='n_clicks'),
-    State(component_id='YearBuilt', component_property='value'),
-    State(component_id='Bathrooms', component_property='value'),
-    State(component_id='BedroomAbvGr', component_property='value'),
-    State(component_id='TotalSF', component_property='value'),
-    State(component_id='SingleFam', component_property='value'),
-    State(component_id='GarageArea', component_property='value')
+    State(component_id='Year', component_property='value'),
+    State(component_id='Month', component_property='value'),
+    State(component_id='Type', component_property='value'),
+    State(component_id='Region', component_property='value'),
 )
-def ames_lr_function(clicks,YearBuilt,Bathrooms,BedroomAbvGr,TotalSF,SingleFam,GarageArea):
-    print(GarageArea)
+def onehotencode(clicks,Year,Month,Type,Region):
+    RegionSanFrancisco=0
+
+    RegionSpokane=0
+
+    RegionAlbany=0
+
+    TypeOrganic = 1 if Type == "Organic" else 0
+    TypeConventional = not TypeOrganic
+    if Region == "San Franciso":
+        RegionSanFrancisco = 1
+        RegionSpokane = 0
+        RegionAlbany = 0
+    if Region == "Albany":
+        RegionSanFrancisco = 0
+        RegionSpokane = 0
+        RegionAlbany = 1
+    if Region == "Spokane":
+        RegionSanFrancisco = 0
+        RegionSpokane = 1
+        RegionAlbany = 0
+    return ames_lr_function(clicks,Year,Month,TypeOrganic,TypeConventional,RegionSanFrancisco,RegionAlbany,RegionSpokane)
+
+
+def ames_lr_function(clicks,Year,Month,TypeOrganic,TypeConventional,RegionSanFrancisco,RegionAlbany,RegionSpokane):
+
     if clicks==0:
         return "waiting for inputs"
     
-    if  (GarageArea is None) :
-        return "Please provide adequate GarageArea"
+    if  (Year is None) :
+        return "Please provide adequate Year"
 
-    if  (YearBuilt is None) :
-        return "Please provide adequate YearBuilt"
+    if  (Month is None) :
+        return "Please provide adequate Month"
 
-    if  (Bathrooms is None) :
-        return "Please provide adequate Bathrooms"
+    if  (TypeOrganic is None) :
+        return "Please provide adequate TypeOrganic"
 
-    if  (BedroomAbvGr is None) :
-        return "Please provide adequate Bedrooms"
+    if  (TypeConventional is None) :
+        return "Please provide adequate TypeConventional"
 
-    if  (SingleFam is None) :
-        return "Please provide adequate SingleFam"
+    if  (RegionSanFrancisco is None) :
+        return "Please provide adequate RegionSanFrancisco"
 
-    if  (TotalSF is None) :
-        return "Please provide adequate Total Square Feet"
+    if  (RegionAlbany is None) :
+        return "Please provide adequate RegionAlbany"
+
+    if  (RegionSpokane is None) :
+        return "Please provide adequate RegionSpokane"
 
     
     checksum=0
-    for var in [YearBuilt,Bathrooms,BedroomAbvGr,TotalSF,SingleFam,GarageArea]:
+    for var in [Year,Month,TypeOrganic,TypeConventional,RegionSanFrancisco,RegionAlbany,RegionSpokane]:
         if isinstance(var,int)==False:
             checksum+=1
-    if (YearBuilt<1900)|(YearBuilt>2020):
+    if (Year<2015)|(Year>2018):
         checksum+=1
-    if (Bathrooms<1) | (Bathrooms>5):
-        checksum+=1
-    if (BedroomAbvGr<1) | (BedroomAbvGr>5):
-        checksum+=1
-    if (TotalSF<100)|(TotalSF>5000):
-        checksum+=1
-    if (SingleFam!=0) & (SingleFam!=1):
-        checksum+=1
-    if (GarageArea<0) | (GarageArea>1481):
+    if (Month<1) | (Month>12):
         checksum+=1
     if checksum>0:
         return "Please provide adequate inputs"
     else:
-        y = [-1154949.7078 + 593.8959*YearBuilt + 13064.0661*Bathrooms + -7004.9201*BedroomAbvGr + 44.3431*TotalSF+ 22586.4944*SingleFam+ 49.1537*GarageArea]
+        y = [-138.26 + 0.0693*Year + 0.0257*Month + 0.28*TypeOrganic + -0.28*TypeConventional+ 0.147*RegionSanFrancisco+ 0.0002*RegionAlbany +-0.1472*RegionSpokane]
 #         y = unpickled_model.predict([[YearBuilt,Bathrooms,BedroomAbvGr,TotalSF,SingleFam,LargeNeighborhood]])
         formatted_y = "${:,.2f}".format(y[0])
         return formatted_y 
-
 ############ Deploy
 if __name__ == '__main__':
     app.run_server(debug=True)
